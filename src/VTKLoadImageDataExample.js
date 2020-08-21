@@ -72,14 +72,14 @@ async function getImageIds() {
 
   const imageIds = [];
   const host = 'http://localhost';
-  const port = '5000';
-  const qidoRoute = 'viewer/viewer/rs/studies';
-  const wadoRoute = 'viewer/viewer/wadouri';
+  const port = '80';
+  const qidoRoute = '/pacs/qidors.php/studies';
+  const wadoRoute = '/pacs/wadouri.php';
   const studyUid = '1.3.46.670589.5.2.10.2156913941.892665384.993397';
   let response = await fetch(`${host}:${port}/${qidoRoute}/${studyUid}/series`);
   let json = await response.json();
   const seriesUid = json[0]['0020000E'].Value[0];
-  response = await fetch(`${host}:${port}/${qidoRoute}/${studyUid}/series/${seriesUid}`);
+  response = await fetch(`${host}:${port}/${qidoRoute}/${studyUid}/series/${seriesUid}/instances`);
   json = await response.json();
   json.forEach(item => {
     const objectUid = item['00080018'].Value[0];
