@@ -28,7 +28,7 @@ const ORIENTATION = {
 const voi = {
   // In SUV as this example uses a PET
   windowCenter: 40,
-  windowWidth: 85,
+  windowWidth: 400,
 };
 
 function createActorMapper(imageData) {
@@ -75,9 +75,11 @@ async function getImageIds() {
   const port = '80';
   const qidoRoute = '/pacs/qidors.php/studies';
   const wadoRoute = '/pacs/wadouri.php';
-  const studyUid = '1.3.46.670589.5.2.10.2156913941.892665384.993397';
+  // using global object or default dataset
+  const studyUid = window.study_uid ||'1.3.46.670589.5.2.10.2156913941.892665384.993397';
   let response = await fetch(`${host}:${port}/${qidoRoute}/${studyUid}/series`);
   let json = await response.json();
+  // loading first series in study
   const seriesUid = json[0]['0020000E'].Value[0];
   response = await fetch(`${host}:${port}/${qidoRoute}/${studyUid}/series/${seriesUid}/instances`);
   json = await response.json();
@@ -186,29 +188,16 @@ class VTKLoadImageDataExample extends Component {
   };
 
   render() {
+    if (!this.state.volumes || !this.state.volumes.length) {
+      return <h4>Loading dataset...</h4>;
+    }
     return (
       <div className="row">
         <div className="col-xs-12">
-          <h1>Loading a cornerstone displayset into vtkjs</h1>
-          <p>
-            The example demonstrates loading cornerstone images already
-            available in the application into a vtkjs viewport.
-          </p>
+          <h1>MPR viewer using vtkjs and dicomweb</h1>
           <hr />
         </div>
         <div className="col-xs-12">
-          <div className="col-xs-12">
-            <label>
-              <input
-                type="radio"
-                value="rotate"
-                name="widget"
-                onChange={this.setWidget}
-                checked={this.state.focusedWidgetId === null}
-              />{' '}
-              Rotate
-            </label>
-          </div>
           <div className="col-xs-12 col-sm-6">
             {this.state.volumes && (
               <>
