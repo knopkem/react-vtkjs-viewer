@@ -72,11 +72,21 @@ async function getImageIds() {
 
   const imageIds = [];
   const host = 'http://localhost';
+
+  // iQWeb config
+  /*
   const port = '80';
   const qidoRoute = '/pacs/qidors.php/studies';
   const wadoRoute = '/pacs/wadouri.php';
-  // using global object or default dataset
-  const studyUid = window.study_uid ||'1.3.46.670589.5.2.10.2156913941.892665384.993397';
+  */
+
+  // dicomweb-proxy config
+  const port = '5000';
+  const qidoRoute = 'viewer/viewer/rs/studies';
+  const wadoRoute = 'viewer/viewer/wadouri';
+
+  // using global object or default study (oblix)
+  const studyUid = window.study_uid ||'1.3.12.2.1107.5.1.4.51964.4.0.3778684930241122';
   let response = await fetch(`${host}:${port}/${qidoRoute}/${studyUid}/series`);
   let json = await response.json();
   // loading first series in study
