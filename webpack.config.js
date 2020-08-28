@@ -49,6 +49,6 @@ module.exports = {
     compress: false,
     hot: true,
     open: true,
-    port: 9000
+    port: 8091
   }
 }
