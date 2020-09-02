@@ -4,50 +4,42 @@ import React from 'react'
 import SmartConnect from "wslink/src/SmartConnect";
 import {default as UUID} from "node-uuid";
 
+// paraview
+import RemoteRenderer from 'paraviewweb/src/NativeUI/Canvas/RemoteRenderer';
+import SizeHelper from 'paraviewweb/src/Common/Misc/SizeHelper';
+import ParaViewWebClient from 'paraviewweb/src/IO/WebSocket/ParaViewWebClient';
+
 // vtk
 import vtkWSLinkClient from "vtk.js/Sources/IO/Core/WSLinkClient";
-import vtkRemoteView from "vtk.js/Sources/Rendering/Misc/RemoteView";
-import { connectImageStream } from "vtk.js/Sources/Rendering/Misc/RemoteView";
 
-export default class StreamViewer extends React.Component
+export default class ParaStreamViewer extends React.Component
 {
   constructor(props)
   {
     super(props);
-    this.view = vtkRemoteView.newInstance({
-        rpcWheelEvent: "viewport.mouse.zoom.wheel",
-      });
     vtkWSLinkClient.setSmartConnectClass(SmartConnect);
     this.clientToConnect = vtkWSLinkClient.newInstance();
     this.id = UUID.v4();
     this.loaderId = 'loader_' + this.id;
-
     this.loaderStyle = {
       color: 'white',
     };
     this.canvasStyle = {
       position: 'relative',
-      width: '100vw',
-      height: '100vh',
+      width: '50vw',
+      height: '50vh',
       overflow: 'hidden',
-      background: 'black',
+      outline: '1px solid white',
+      background: 'black'
     }
     this.state = {
       message: 'Loading...',
     }
   }
 
-
   componentDidMount()
   {
     const renderDiv = document.getElementById(this.id);
-
-    this.view.setContainer(renderDiv);
-    this.view.setInteractiveRatio(0.7);
-    this.view.setInteractiveQuality(15);
-
-    window.addEventListener('resize', this.view.resize);
-
 
     // Error
     this.clientToConnect.onConnectionError((httpReq) => {
@@ -72,6 +64,7 @@ export default class StreamViewer extends React.Component
     const config = {
         application: this.props.type, 
         uid: this.props.seriesUid, 
+        orientation: this.props.sliceOrientation
     };
 
 
@@ -81,16 +74,27 @@ export default class StreamViewer extends React.Component
         .connect(config)
         .then((validClient) => {
           console.log('connected');
-          const session = validClient.getConnection().getSession();
-          connectImageStream(session);
-          this.view.setSession(session);
-          this.view.setViewId(-1);
-          this.view.render();
-          const loaderDiv = document.getElementById(this.loaderId);
-          if (loaderDiv) {
-            renderDiv.removeChild(loaderDiv);
-            renderDiv.style.background = '';
-          }
+
+          const connection = validClient.getConnection();
+          const pvwClient = ParaViewWebClient.createClient(connection, [
+            'MouseHandler',
+            'ViewPort',
+            'ViewPortImageDelivery',
+          ]);
+          const renderer = new RemoteRenderer(pvwClient);
+          renderer.setContainer(renderDiv);
+          renderer.onImageReady(() => {
+            console.log('Image ready');
+            const loaderDiv = document.getElementById(this.loaderId);
+            if (loaderDiv) {
+              renderDiv.removeChild(loaderDiv);
+            }
+          });
+          window.renderer = renderer;
+          SizeHelper.onSizeChange(() => {
+            renderer.resize();
+          });
+          SizeHelper.startListening();
         })
         .catch((error) => {
             console.error(error);
@@ -98,7 +102,7 @@ export default class StreamViewer extends React.Component
   }
 
   render()
-  {
+  { 
     return <div id={this.id} style= {this.canvasStyle}><div id={this.loaderId} style={this.loaderStyle} >{this.state.message}</div></div>;
   }
 }
