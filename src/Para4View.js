@@ -23,7 +23,7 @@ export default class Para4View extends React.Component
             <Grid item style={style}>
               <ParaStreamViewer
                 sliceOrientation='axial'
-                type='mpr'
+                type='pv_mpr'
                 viewid='1'
                 seriesUid={this.seriesUid}
               ></ParaStreamViewer>
@@ -31,7 +31,7 @@ export default class Para4View extends React.Component
             <Grid item style={{style}}>
               <ParaStreamViewer
                 sliceOrientation='sagittal'
-                type='mpr'
+                type='pv_mpr'
                 viewid='2'
                 seriesUid={this.seriesUid}
               ></ParaStreamViewer>
@@ -41,7 +41,7 @@ export default class Para4View extends React.Component
             <Grid item style={{style}}>
               <ParaStreamViewer
               sliceOrientation='coronal'
-              type='mpr'
+              type='pv_mpr'
               viewid='3'
               seriesUid={this.seriesUid}
               ></ParaStreamViewer>
@@ -49,7 +49,7 @@ export default class Para4View extends React.Component
             <Grid item style={{style}}>
               <ParaStreamViewer
               sliceOrientation='axial'
-              type='vrt'
+              type='pv_vrt'
               viewid='4'
               seriesUid={this.seriesUid}
               ></ParaStreamViewer>
