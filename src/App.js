@@ -1,6 +1,7 @@
 import React from 'react';
 import Para4View from './Para4View.js';
 import Vtk4View from './Vtk4View.js';
+import SampleViewer from './SampleViewer.js'
 
 import Toolbar from '@material-ui/core/Toolbar';
 import Button from '@material-ui/core/Button'
@@ -16,9 +17,9 @@ export default class ReactApp extends React.Component
     render()
     {
       return <div className="App">
-        <Vtk4View
+        <SampleViewer
         seriesUid={this.seriesUid}
-        ></Vtk4View>
+        ></SampleViewer>
          </div>
     }
 }

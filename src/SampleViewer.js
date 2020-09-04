@@ -9,8 +9,9 @@ import coneProtocol from './protocol.js';
 import vtkWSLinkClient from "vtk.js/Sources/IO/Core/WSLinkClient";
 import vtkRemoteView from "vtk.js/Sources/Rendering/Misc/RemoteView";
 import { connectImageStream } from "vtk.js/Sources/Rendering/Misc/RemoteView";
+import Slider from '@material-ui/core/Slider';
 
-export default class StreamViewer extends React.Component
+export default class SampleViewer extends React.Component
 {
   constructor(props)
   {
@@ -38,7 +39,19 @@ export default class StreamViewer extends React.Component
     }
     this.state = {
       message: 'Loading...',
+      sliderValue: 30,
     }
+    this.handleChange = (event, newValue) => {
+      if (this.validClient) {
+        this.validClient.getRemote()
+        .Cone.updateResolution(newValue)
+        .then(result => {
+          console.log('resolution updated', result);
+        });
+      }
+      this.setState({sliderValue: newValue});
+    };
+    this.validClient = null;
   }
 
 
@@ -74,8 +87,8 @@ export default class StreamViewer extends React.Component
       });
   
     const config = {
-        application: this.props.type, 
-        uid: this.props.seriesUid, 
+        application: 'cone',
+        sessionURL: 'ws://localhost:9999/ws'
     };
 
 
@@ -95,14 +108,35 @@ export default class StreamViewer extends React.Component
             renderDiv.removeChild(loaderDiv);
             renderDiv.style.background = '';
           }
+          validClient.getRemote()
+          .Cone.createVisualization()
+          .then(
+            ({ focalPoint, viewUp, position, centerOfRotation, bounds }) => {
+              console.log({
+                focalPoint,
+                viewUp,
+                position,
+                centerOfRotation,
+                bounds,
+              });
+            }
+          );
+         this.validClient = validClient;
         })
         .catch((error) => {
             console.error(error);
         });
   }
 
+
   render()
   {
-    return <div id={this.id} style= {this.canvasStyle}><div id={this.loaderId} style={this.loaderStyle} >{this.state.message}</div></div>;
+ 
+    return     <div>
+    <Slider value={this.state.sliderValue} onChange={this.handleChange} aria-labelledby="continuous-slider" />
+    <div id={this.id} style= {this.canvasStyle}>
+    <div id={this.loaderId} style={this.loaderStyle} >{this.state.message}</div>
+    </div>;
+    </div>
   }
 }
