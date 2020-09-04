@@ -3,6 +3,7 @@ import React from 'react'
 
 import SmartConnect from "wslink/src/SmartConnect";
 import {default as UUID} from "node-uuid";
+import coneProtocol from 'protocol.js';
 
 // vtk
 import vtkWSLinkClient from "vtk.js/Sources/IO/Core/WSLinkClient";
@@ -19,6 +20,9 @@ export default class StreamViewer extends React.Component
       });
     vtkWSLinkClient.setSmartConnectClass(SmartConnect);
     this.clientToConnect = vtkWSLinkClient.newInstance();
+    clientToConnect.setProtocols({
+      Cone: coneProtocol,
+    });
     this.id = UUID.v4();
     this.loaderId = 'loader_' + this.id;
 
